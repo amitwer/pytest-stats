@@ -1,0 +1,30 @@
+name: Test
+run-name: "${{ github.workflow }} - ${{ github.triggering_actor }} - Branch: ${{ github.ref_name }}"
+
+on: [push, pull_request]
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
+      - uses: Gr1N/setup-poetry@v8
+      - name: install project
+        run: poetry install
+      - name: pylint
+        run: poetry run pylint src
+      - name: mypy
+        run: poetry run mypy src
+      - name: test
+        run: poetry run pytest --tb=short --junitxml=result.xml
+      - name: Surface failing tests
+        if: always()
+        uses: pmeier/pytest-results-action@main
+        with:
+          path: result.xml
+          summary: true
+          fail-on-empty: true
+          title: Test results
