@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.version }}
+          python-version: ${{ matrix.python-version }}
       - uses: Gr1N/setup-poetry@v8
       - name: install project
         run: poetry install
