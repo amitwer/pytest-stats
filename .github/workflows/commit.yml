@@ -10,11 +10,11 @@ jobs:
         python-version: [ "3.8","3.9","3.10","3.11","3.12" ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: Gr1N/setup-poetry@v8
+      - uses: Gr1N/setup-poetry@v9
       - name: install project
         run: poetry install
       - name: pylint
@@ -25,7 +25,7 @@ jobs:
         run: poetry run pytest --tb=short --junitxml=result.xml
       - name: Surface failing tests
         if: always()
-        uses: pmeier/pytest-results-action@main
+        uses: pmeier/pytest-results-action@0.6.0
         with:
           path: result.xml
           summary: true
