@@ -1,16 +1,19 @@
 name: Test
 run-name: "${{ github.workflow }} - ${{ github.triggering_actor }} - Branch: ${{ github.ref_name }}"
 
-on: [push, pull_request]
+on: [ push, pull_request ]
 
 jobs:
-  install:
+  test:
+    strategy:
+      matrix:
+        python-version: [ "3.8","3.9","3.10","3.11","3.12" ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.8"
+          python-version: ${{ matrix.version }}
       - uses: Gr1N/setup-poetry@v8
       - name: install project
         run: poetry install
