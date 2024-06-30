@@ -1,5 +1,4 @@
-name: Test
-run-name: "${{ github.workflow }} - ${{ github.triggering_actor }} - Branch: ${{ github.ref_name }}"
+name: Publish build
 
 on:
   push:
