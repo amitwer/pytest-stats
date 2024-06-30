@@ -1,0 +1,25 @@
+name: Test
+run-name: "${{ github.workflow }} - ${{ github.triggering_actor }} - Branch: ${{ github.ref_name }}"
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: Gr1N/setup-poetry@v9
+      - name: install project
+        run: poetry install
+      - name: config pypi token
+        env:
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+        run: poetry config pypi-token.pypi $PYPI_TOKEN
+      - name: publish
+        run: poetry publish --build
