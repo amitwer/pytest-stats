@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pytest-stats"
-version = "0.0.1"
+version = "0.0.2"
 description = "Collects tests metadata for future analysis, easy to extend for any data store"
 homepage = "https://github.com/amitwer/pytest-stats"
 authors = ["Amit Wertheimer <12250123+amitwer@users.noreply.github.com>"]
@@ -27,7 +27,7 @@ pytest_stats = "pytest_stats.pytest_stats"
 
 [tool.poetry.dependencies]
 python = ">=3.8"
-pytest = ">=8.2.2"
+pytest = ">=8.0.0"
 
 [tool.poetry.dev-dependencies]
 pytest-cov = ">=5.0.0"
