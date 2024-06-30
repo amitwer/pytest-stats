@@ -78,8 +78,9 @@ def pytest_addoption(parser: "Parser", pluginmanager: "PytestPluginManager") -> 
 
 
 def _report_session_start(session: 'Session') -> None:
-    session_data = session.stash['session_data']  # type: ignore[index]
+    session_data: TestSessionData = session.stash['session_data']  # type: ignore[index]
     session_data.session_id = _session_id(session.config)
+    session_data.start_time = datetime.timestamp(datetime.now())
     reporters(session).report_session_start(session_data=session_data)
 
 
@@ -99,10 +100,11 @@ def pytest_sessionstart(session: 'Session') -> None:
 
 def pytest_sessionfinish(session: 'Session', exitstatus: int) -> None:
     # noinspection PyTypeChecker
-    session_data = session.stash['session_data']  # type: ignore[index]
+    session_data: TestSessionData = session.stash['session_data']  # type: ignore[index]
     session_data.status = ExitCode(exitstatus).name
     session_data.collected_tests = session.testscollected
     session_data.failed_tests = session.testsfailed
+    session_data.end_time = datetime.timestamp(datetime.now())
     reporters(session).report_session_finish(session_data=session_data)
 
 
@@ -120,7 +122,7 @@ def pytest_load_initial_conftests(early_config: "Config", parser: "Parser", args
     session_id = str(uuid.uuid4())
     if early_config.pluginmanager.has_plugin('xdist'):
         parsed_args = parser.parse(args=args)
-        if 'testrunuid' in parsed_args:
+        if 'testrunuid' in parsed_args and parsed_args.testrunuid is not None:
             session_id = parsed_args.testrunuid
         else:
             args.append(f'--testrunuid={session_id}')
