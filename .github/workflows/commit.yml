@@ -1,7 +1,7 @@
 name: Test
 run-name: "${{ github.workflow }} - ${{ github.triggering_actor }} - Branch: ${{ github.ref_name }}"
 
-on: [ push, pull_request ]
+on: [ push ]
 
 jobs:
   test:

@@ -1,18 +1,25 @@
 [tool.poetry]
 name = "pytest-stats"
 version = "0.0.1"
-description = "Pytest extensions, report stats to db"
-
+description = "Collects tests metadata for future analysis, easy to extend for any data store"
+homepage = "https://github.com/amitwer/pytest-stats"
 authors = ["Amit Wertheimer <12250123+amitwer@users.noreply.github.com>"]
 maintainers = []
 readme = "README.md"
+license = "MIT"
+
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Framework :: Pytest"
+]
 
 packages = [
     { include = "pytest_stats", from = "src" },
 ]
-keywords = []
+keywords = ["pytest", "stats", "metadata"]
 
-classifiers = ["Framework :: Pytest"]
 
 
 [tool.poetry.plugins."pytest11"]
@@ -20,16 +27,16 @@ pytest_stats = "pytest_stats.pytest_stats"
 
 [tool.poetry.dependencies]
 python = ">=3.8"
+pytest = ">=8.2.2"
 
 [tool.poetry.dev-dependencies]
 pytest-cov = ">=5.0.0"
-pytest = ">=8.2.2"
 mypy = ">=1.10.1"
 pylint = "*"
 assertpy = "*"
 
-[tool.setuptools.package-data]
-"pytest-stats" = ["py.typed"]
+#[tool.setuptools.package-data]
+#"pytest-stats" = ["py.typed"]
 
 [tool.mypy]
 python_version = "3.8"
@@ -45,6 +52,6 @@ build-backend = "poetry.masonry.api"
 [tool.pylint."messages control"]
 disable = "c-extension-no-member,missing-module-docstring,missing-function-docstring,missing-class-docstring,too-few-public-methods"
 [tool.pylint.format]
-max-line-length=120
-max-module-lines=200
-max-args=7
+max-line-length = 120
+max-module-lines = 200
+max-args = 7

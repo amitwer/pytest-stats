@@ -1,0 +1,27 @@
+name: Pull request
+run-name: "PR: ${{ github.workflow }} - ${{ github.triggering_actor }} - Branch: ${{ github.ref_name }}"
+
+on: [pull_request]
+
+jobs:
+
+  verify-release-changed:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: verify version changed
+        run: |
+          output=`git diff ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} --unified=0 -- pyproject.toml`
+          echo "OUTPUT is:"
+          echo "$output"
+          vdiff=`echo "$output"|egrep "\+version = \"[0-9]+\.[0-9]+\.[0-9]+\""||true`
+          echo "Version diff is: ${vdiff}"
+          if [ -n "$vdiff" ]; then
+            echo "Version has changed, looks ok"
+          else
+            echo "version is not changed, please check pyproject.toml"
+            exit 1
+          fi

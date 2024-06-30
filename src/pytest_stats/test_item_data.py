@@ -1,9 +1,11 @@
+from copy import copy
 from typing import Optional, Set
 
 
 class TestItemData:
     name: str
     test_start_protocol: float
+    test_end_protocol: float
     test_start_setup: float
     test_end_setup: float
     test_duration_setup: float
@@ -26,7 +28,10 @@ class TestItemData:
     stack_trace: Optional[str]
 
     def __str__(self: 'TestItemData') -> str:
-        return f'Test::{self.name}:: {str(vars(self))}>'
+        d = copy(vars(self))
+        if 'test_output' in d:
+            d.pop('test_output')
+        return f'Test::{self.name}:: {d}>'
 
     def set_step_status(self, when: str, start: float, end: float, duration: float, outcome: str) -> None:
         setattr(self, f'test_start_{when}', start)

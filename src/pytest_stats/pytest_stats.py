@@ -67,6 +67,7 @@ def pytest_runtest_protocol(  # type: ignore[return]
     test_data.marks = _get_marks(item)
     test_data.test_start_protocol = datetime.timestamp(datetime.now())
     yield
+    test_data.test_end_protocol = datetime.timestamp(datetime.now())
     reporters(item.session).report_test(test_data=test_data)
 
 
