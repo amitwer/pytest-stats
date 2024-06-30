@@ -2,7 +2,7 @@ name: Test
 run-name: "${{ github.workflow }} - ${{ github.triggering_actor }} - Branch: ${{ github.ref_name }}"
 
 on:
-  pull_request:
+  push:
     branches:
       - master
 
