@@ -21,7 +21,7 @@ jobs:
           echo "Version diff is: ${vdiff}"
           if [ -n "$vdiff" ]; then
             echo "Version has changed, looks ok"
-            echo "PACKAGE_VERSION=$vdiff" >> $GITHUB_ENV
+            echo "::set-env PACKAGE_VERSION=$vdiff::PACKAGE_VERSION"
           else
             echo "version is not changed, please check pyproject.toml"
             exit 1
@@ -29,7 +29,7 @@ jobs:
       - name: verify release notes added
         run: |
           output=`git diff ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} --unified=0 -- release-notes.md`
-          release_notes_diff=`echo "$output" |grep "# version ${env.PACKAGE_VERSION}"||true`
+          release_notes_diff=`echo "$output" |grep "# version ${PACKAGE_VERSION}"||true`
           echo "release notes diff: $release_notes_diff"
           if [ -n "$release_notes_diff" ]; then
             echo "Version changes documented"
