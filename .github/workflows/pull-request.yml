@@ -21,7 +21,9 @@ jobs:
           echo "Version diff is: ${vdiff}"
           if [ -n "$vdiff" ]; then
             echo "Version has changed, looks ok"
-            echo "::set-env name=PACKAGE_VERSION::$vdiff"
+            $vdiff=`echo $vdiff|egrep -o "[0-9]+\.[0-9]+\.[0-9]+\."
+            echo "version is: $vdiff"
+            echo "PACKAGE_VERSION=$vdiff">> $GITHUB_ENV
           else
             echo "version is not changed, please check pyproject.toml"
             exit 1
