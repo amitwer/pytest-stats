@@ -5,7 +5,7 @@ on: [pull_request]
 
 jobs:
 
-  verify-release-changed:
+  verify-housekeeping:
     runs-on: ubuntu-latest
     steps:
       - name: checkout
