@@ -86,6 +86,8 @@ def _report_session_start(session: 'Session') -> None:
     session_data: TestSessionData = get_test_session_data(session=session)
     session_data.session_id = _session_id(session.config)
     session_data.xdist_worker_id = os.getenv('PYTEST_XDIST_WORKER', None)
+    session_data.fail_msg = None
+    session_data.stack_trace = None
     session_data.start_time = datetime.timestamp(datetime.now())
     reporters(session).report_session_start(session_data=session_data)
 
