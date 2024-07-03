@@ -42,6 +42,36 @@ class TestPlugin:
     def hookrecorder(self, request, pytester: pytest.Pytester):
         return pytester.make_hook_recorder(request.config.pluginmanager)
 
+    def test_get_test_item_data_returns_the_correct_value(self):
+
+        self._pytester.makepyfile(
+            """
+            from pytest_stats.pytest_stats import get_test_item_data
+            from assertpy import assert_that
+            def test_passing(request):
+                data= get_test_item_data(item=request.node)
+                assert_that(data).is_same_as(request.node.stash['test_data'])
+                logging.info('assertion done!')
+        """
+        )
+        res = self._pytester.runpytest()
+        # noinspection PyUnresolvedReferences
+        assert_that(str(res.stdout)).contains("assertion done!")
+
+    def test_get_test_session_data_returns_the_correct_value(self):
+        self._pytester.makepyfile(
+            """
+            from pytest_stats.pytest_stats import get_test_session_data
+            from assertpy import assert_that
+            def test_passing(request):
+                data= get_test_session_data(session=request.session)
+                assert_that(data).is_same_as(request.session.stash['session_data'])
+                logging.info('assertion done!')
+        """
+        )
+        res = self._pytester.runpytest()
+        # noinspection PyUnresolvedReferences
+        assert_that(str(res.stdout)).contains("assertion done!")
     def test_hook_for_env_is_available(self):
         self._pytester.makeconftest(
             """
@@ -206,6 +236,34 @@ class TestPlugin:
         assert_that(str(res.stdout)).contains("Registered reporters: set()") \
             .contains('--disable-default-text-reporter flag was used - not using default reporter')
 
+    def test_all_mandatory_fields_are_reported_per_session(self):
+        self._pytester.makeconftest(
+            """ 
+            import pytest
+            import typing
+            from assertpy import assert_that
+            from tests.dummy_test_reporter import DummyTestReporter
+            class MyTestReporter(DummyTestReporter):
+
+                def report_session_finish(self, session_data):
+                    assert_that(vars(session_data).keys()).is_equal_to(typing.get_type_hints(session_data).keys())
+                    print('Assertion Done!')
+
+
+            @pytest.hookimpl()
+            def pytest_stats_register_reporters(reporters:'ReportersRegistry'):
+                reporters.register(MyTestReporter())
+
+        """)
+        self._pytester.makepyfile(
+            """          
+            def test_passing():
+                pass
+        """
+        )
+        res = self._pytester.runpytest()
+        assert_that(res.ret).is_equal_to(ExitCode.OK)
+        assert_that(str(res.stdout)).contains('Assertion Done!')
     def test_all_mandatory_fields_are_reported_per_test(self):
         self._pytester.makeconftest(
             """ 

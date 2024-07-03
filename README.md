@@ -29,3 +29,8 @@ Most data is collected by hooking the following pytest-provided hooks:
 ### New hooks available
 * `pytest_stats_register_reporters`: used to register a new reporter. More than one reporter can be registered at the same hook. <br> Invoked as part of `pytest_configure`
 * `pytest_stats_env_data`: Enables adding custom environment information to the session data. <br> Invoked as part of `pytest_sessionstart`
+
+### Utility functions
+* `get_test_session_data(session: 'Session') -> TestSessionData` - can be used to fetch the session data in an arbitrary location
+* `get_test_item_data(item: 'Item') -> TestItemData` - can be used to fetch the current test data in arbitrary location. For instance, one can call `get_test_item_data(item=request.node).foo="bar"`
+* 

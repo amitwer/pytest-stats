@@ -1,4 +1,5 @@
 import logging
+import os
 import traceback
 import uuid
 from datetime import datetime
@@ -59,7 +60,7 @@ def pytest_runtest_protocol(  # type: ignore[return]
         item: 'Item', nextitem: "Optional[Item]"  # pylint:disable=unused-argument
 ) -> Optional[object]:
     # noinspection PyTypeChecker
-    test_data = item.stash.get(TEST_DATA_KEY, TestItemData())  # type: ignore[arg-type]
+    test_data = get_test_item_data(item)
     # noinspection PyTypeChecker
     item.stash[TEST_DATA_KEY] = test_data  # type: ignore[index]
     test_data.session_id = _session_id(item.config)
@@ -71,6 +72,10 @@ def pytest_runtest_protocol(  # type: ignore[return]
     reporters(item.session).report_test(test_data=test_data)
 
 
+def get_test_item_data(item: 'Item') -> TestItemData:
+    return item.stash.get(TEST_DATA_KEY, TestItemData())  # type: ignore[arg-type]
+
+
 # noinspection PyUnusedLocal
 def pytest_addoption(parser: "Parser", pluginmanager: "PytestPluginManager") -> None:  # pylint:disable=unused-argument
     parser.addoption('--collect-stats', action='store_true', dest='collect_stats')
@@ -78,8 +83,11 @@ def pytest_addoption(parser: "Parser", pluginmanager: "PytestPluginManager") -> 
 
 
 def _report_session_start(session: 'Session') -> None:
-    session_data: TestSessionData = session.stash['session_data']  # type: ignore[index]
+    session_data: TestSessionData = get_test_session_data(session=session)
     session_data.session_id = _session_id(session.config)
+    session_data.xdist_worker_id = os.getenv('PYTEST_XDIST_WORKER', None)
+    session_data.fail_msg = None
+    session_data.stack_trace = None
     session_data.start_time = datetime.timestamp(datetime.now())
     reporters(session).report_session_start(session_data=session_data)
 
@@ -100,12 +108,16 @@ def pytest_sessionstart(session: 'Session') -> None:
 
 def pytest_sessionfinish(session: 'Session', exitstatus: int) -> None:
     # noinspection PyTypeChecker
-    session_data: TestSessionData = session.stash['session_data']  # type: ignore[index]
+    session_data: TestSessionData = get_test_session_data(session)
     session_data.status = ExitCode(exitstatus).name
     session_data.collected_tests = session.testscollected
     session_data.failed_tests = session.testsfailed
     session_data.end_time = datetime.timestamp(datetime.now())
     reporters(session).report_session_finish(session_data=session_data)
+
+
+def get_test_session_data(session: 'Session') -> TestSessionData:
+    return session.stash['session_data']  # type: ignore[index]
 
 
 def _init_reporters(reporters_registry: ReportersRegistry, session: 'Session') -> None:
@@ -136,9 +148,9 @@ def _session_id(config: 'Config') -> str:
     return config.stash['stats_session_id']  # type: ignore[index]
 
 
-@pytest.hookimpl(hookwrapper=True, trylast=True)
+@pytest.hookimpl(hookwrapper=True, tryfirst=True)
 def pytest_runtest_makereport(item: "Item", call: "CallInfo[None]") -> Optional["TestReport"]:  # type: ignore[misc]
-    output = (yield)
+    output = yield
     test_state = output.get_result()
     # noinspection PyTypeChecker
     test_data: TestItemData = item.stash[TEST_DATA_KEY]  # type: ignore[index]
@@ -169,7 +181,7 @@ def pytest_exception_interact(
         return
     if call.when == 'collect':
         logging.debug('Got exception during collection, reporting error in session')
-        session_data = node.session.stash['session_data']  # type: ignore[index]
+        session_data = get_test_session_data(session=node.session)
         session_data.fail_msg = str(call.excinfo.value)
         session_data.stack_trace = '\n'.join(traceback.format_tb(call.excinfo.tb))
     else:
