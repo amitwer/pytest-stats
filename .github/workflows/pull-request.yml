@@ -21,7 +21,7 @@ jobs:
           echo "Version diff is: ${vdiff}"
           if [ -n "$vdiff" ]; then
             echo "Version has changed, looks ok"
-            echo "::set-env PACKAGE_VERSION=$vdiff::PACKAGE_VERSION"
+            echo "::set-env name=PACKAGE_VERSION::$vdiff"
           else
             echo "version is not changed, please check pyproject.toml"
             exit 1
