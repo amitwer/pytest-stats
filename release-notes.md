@@ -2,6 +2,7 @@
 * Added xdist_worker_id to TestItemData as well
 * Changed logger to be on the module name instead of the root logger
 * fixed some broken tests that were mistakenly passing
+* Catching exceptions from all reporters, so that the flow won't break
 # version 1.0.0
 * Added check for release notes
 * Added two utility functions: get_test_session_data & get_test_item_data

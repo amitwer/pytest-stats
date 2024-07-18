@@ -23,6 +23,7 @@ class ResultsReporter(ABC):
         pass
 
 
+# noinspection PyBroadException
 class ReportersRegistry:
     def __init__(self) -> None:
         self._reporters: Set[ResultsReporter] = set()
@@ -33,12 +34,21 @@ class ReportersRegistry:
 
     def report_test(self, test_data: 'TestItemData') -> None:
         for reporter in self._reporters:
-            reporter.report_test(test_data=test_data)
+            try:
+                reporter.report_test(test_data=test_data)
+            except Exception:
+                logger.exception('failed to report test to %s', reporter)
 
     def report_session_start(self, session_data: 'TestSessionData') -> None:
         for reporter in self._reporters:
-            reporter.report_session_start(session_data=session_data)
+            try:
+                reporter.report_session_start(session_data=session_data)
+            except Exception:
+                logger.exception('failed to report session start to %s', reporter)
 
     def report_session_finish(self, session_data: 'TestSessionData') -> None:
         for reporter in self._reporters:
-            reporter.report_session_finish(session_data=session_data)
+            try:
+                reporter.report_session_finish(session_data=session_data)
+            except Exception:
+                logger.exception('failed to report session finish to %s', reporter)
