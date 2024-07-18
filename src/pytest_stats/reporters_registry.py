@@ -36,19 +36,19 @@ class ReportersRegistry:
         for reporter in self._reporters:
             try:
                 reporter.report_test(test_data=test_data)
-            except Exception:
+            except Exception:  # pylint:disable=broad-exception-caught
                 logger.exception('failed to report test to %s', reporter)
 
     def report_session_start(self, session_data: 'TestSessionData') -> None:
         for reporter in self._reporters:
             try:
                 reporter.report_session_start(session_data=session_data)
-            except Exception:
+            except Exception:  # pylint:disable=broad-exception-caught
                 logger.exception('failed to report session start to %s', reporter)
 
     def report_session_finish(self, session_data: 'TestSessionData') -> None:
         for reporter in self._reporters:
             try:
                 reporter.report_session_finish(session_data=session_data)
-            except Exception:
+            except Exception:  # pylint:disable=broad-exception-caught
                 logger.exception('failed to report session finish to %s', reporter)
