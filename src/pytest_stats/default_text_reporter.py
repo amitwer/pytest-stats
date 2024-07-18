@@ -7,6 +7,8 @@ if TYPE_CHECKING:
     from pytest_stats.test_item_data import TestItemData
     from pytest_stats.test_session_data import TestSessionData
 
+logger = logging.getLogger(__name__)
+
 
 class DefaultTextReporter(ResultsReporter):
     def __init__(self) -> None:
@@ -14,7 +16,7 @@ class DefaultTextReporter(ResultsReporter):
         self._session_data: Optional['TestSessionData'] = None
 
     def report_session_start(self, session_data: 'TestSessionData') -> None:
-        logging.debug('Starting session with: %s', session_data)
+        logger.debug('Starting session with: %s', session_data)
         self._session_data = session_data
 
     def report_session_finish(self, session_data: 'TestSessionData') -> None:
@@ -25,7 +27,8 @@ class DefaultTextReporter(ResultsReporter):
         self._tests.append(test_data)
 
     def _print_report(self) -> None:
-        logging.info("----------TEST STATS----------\r\n"
-                     "Session Data\r\n %s\r\n"
-                     "Tests:\r\n %s", self._session_data, '\r\n'.join([str(x) for x in self._tests])
-                     )
+        logger.info(
+            "----------TEST STATS----------\r\n"
+            "Session Data\r\n %s\r\n"
+            "Tests:\r\n %s", self._session_data, '\r\n'.join([str(x) for x in self._tests])
+        )

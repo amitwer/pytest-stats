@@ -43,18 +43,19 @@ class TestPlugin:
         return pytester.make_hook_recorder(request.config.pluginmanager)
 
     def test_get_test_item_data_returns_the_correct_value(self):
-
         self._pytester.makepyfile(
             """
             from pytest_stats.pytest_stats import get_test_item_data
             from assertpy import assert_that
+            import logging
+            
             def test_passing(request):
                 data= get_test_item_data(item=request.node)
                 assert_that(data).is_same_as(request.node.stash['test_data'])
                 logging.info('assertion done!')
         """
         )
-        res = self._pytester.runpytest()
+        res = self._pytester.runpytest('--log-cli-level=INFO')
         # noinspection PyUnresolvedReferences
         assert_that(str(res.stdout)).contains("assertion done!")
 
@@ -72,6 +73,7 @@ class TestPlugin:
         res = self._pytester.runpytest()
         # noinspection PyUnresolvedReferences
         assert_that(str(res.stdout)).contains("assertion done!")
+
     def test_hook_for_env_is_available(self):
         self._pytester.makeconftest(
             """
@@ -101,7 +103,7 @@ class TestPlugin:
             import pytest
             from tests.dummy_test_reporter import DummyTestReporter
             class MyReporter(DummyTestReporter):
-                def report_session_start(session_data):
+                def report_session_start(self, session_data):
                     print(f'session_data: {session_data}')
                     pass
             
@@ -264,6 +266,7 @@ class TestPlugin:
         res = self._pytester.runpytest()
         assert_that(res.ret).is_equal_to(ExitCode.OK)
         assert_that(str(res.stdout)).contains('Assertion Done!')
+
     def test_all_mandatory_fields_are_reported_per_test(self):
         self._pytester.makeconftest(
             """ 
@@ -276,7 +279,7 @@ class TestPlugin:
                 def report_test(self, test_data):
                     hints = {a:b for (a,b) in \
                     typing.get_type_hints(test_data).items() if type(None) not in typing.get_args(b)}
-                    assert_that(vars(test_data).keys()).is_equal_to(hints.keys())
+                    assert_that(hints.keys()).is_subset_of(vars(test_data).keys())
                     print('Assertion Done!')
 
 
