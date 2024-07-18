@@ -6,6 +6,8 @@ if TYPE_CHECKING:
     from pytest_stats.test_session_data import TestSessionData
     from pytest_stats.test_item_data import TestItemData
 
+logger = logging.getLogger(__name__)
+
 
 class ResultsReporter(ABC):
     @abstractmethod
@@ -27,7 +29,7 @@ class ReportersRegistry:
 
     def register(self, reporter: ResultsReporter) -> None:
         self._reporters.add(reporter)
-        logging.debug('registered reporter %s', reporter)
+        logger.debug('registered reporter %s', reporter)
 
     def report_test(self, test_data: 'TestItemData') -> None:
         for reporter in self._reporters:

@@ -23,6 +23,7 @@ class TestItemData:
     test_duration_teardown: float
     result_teardown: str
     test_output: str
+    xdist_worker_id: Optional[str]
     marks: Set[str]
     fail_msg: Optional[str]
     stack_trace: Optional[str]

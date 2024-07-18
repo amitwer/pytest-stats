@@ -13,8 +13,6 @@ from pytest_stats.reporters_registry import ReportersRegistry
 from pytest_stats.test_item_data import TestItemData
 from pytest_stats.test_session_data import TestSessionData
 
-TEST_DATA_KEY = 'test_data'
-
 if TYPE_CHECKING:
     from _pytest.config.argparsing import Parser
     from _pytest.mark import Mark
@@ -22,6 +20,9 @@ if TYPE_CHECKING:
     from _pytest.reports import TestReport, CollectReport
     from _pytest.runner import CallInfo
     from _pytest.main import Session
+
+logger = logging.getLogger(__name__)
+TEST_DATA_KEY = 'test_data'
 
 
 def pytest_configure(config: 'Config') -> None:
@@ -67,6 +68,7 @@ def pytest_runtest_protocol(  # type: ignore[return]
     test_data.name = item.name
     test_data.marks = _get_marks(item)
     test_data.test_start_protocol = datetime.timestamp(datetime.now())
+    test_data.xdist_worker_id = get_test_session_data(item.session).xdist_worker_id
     yield
     test_data.test_end_protocol = datetime.timestamp(datetime.now())
     reporters(item.session).report_test(test_data=test_data)
@@ -126,7 +128,7 @@ def _init_reporters(reporters_registry: ReportersRegistry, session: 'Session') -
     if session.config.option.use_default_text_reporter:
         reporters_registry.register(DefaultTextReporter())
     else:
-        logging.debug('--disable-default-text-reporter flag was used - not using default reporter')
+        logger.debug('--disable-default-text-reporter flag was used - not using default reporter')
 
 
 @pytest.hookimpl
@@ -180,12 +182,12 @@ def pytest_exception_interact(
     if call.excinfo is None:
         return
     if call.when == 'collect':
-        logging.debug('Got exception during collection, reporting error in session')
+        logger.debug('Got exception during collection, reporting error in session')
         session_data = get_test_session_data(session=node.session)
         session_data.fail_msg = str(call.excinfo.value)
         session_data.stack_trace = '\n'.join(traceback.format_tb(call.excinfo.tb))
     else:
-        logging.debug('Collecting exception information for test')
+        logger.debug('Collecting exception information for test')
         # noinspection PyTypeChecker
         test_data = node.stash[TEST_DATA_KEY]  # type: ignore[index]
         test_data.fail_msg = str(call.excinfo.value)

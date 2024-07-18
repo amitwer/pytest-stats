@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pytest-stats"
-version = "1.0.0"
+version = "1.0.1"
 description = "Collects tests metadata for future analysis, easy to extend for any data store"
 homepage = "https://github.com/amitwer/pytest-stats"
 authors = ["Amit Wertheimer <12250123+amitwer@users.noreply.github.com>"]
